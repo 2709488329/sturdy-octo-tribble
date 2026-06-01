@@ -1,17 +1,18 @@
 package com.puppyadopt.webapp;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     private WebView webView;
     private final Handler handler = new Handler();
@@ -30,14 +31,12 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setAllowFileAccess(true);
         webView.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);
 
-        // Ensure the game timer keeps running (approximately) when backgrounded
         webView.addJavascriptInterface(new WebAppInterface(), "Android");
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // Resume timer if we were paused
                 if (isPaused) {
                     view.evaluateJavascript(
                         "if(typeof startTimer === 'function') startTimer();", null
@@ -49,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
 
         webView.setWebChromeClient(new WebChromeClient());
 
-        // Load the game from assets
         webView.loadUrl("file:///android_asset/index.html");
     }
 
@@ -65,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Pause the game timer to reduce CPU
         isPaused = true;
         webView.evaluateJavascript(
             "if(typeof window._pause !== 'undefined') window._pause();", null
@@ -79,8 +76,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         webView.onResume();
         webView.resumeTimers();
-        // The timer will be restarted in onPageFinished when we reload
-        // Actually to keep the game state, just let the timer run
         webView.evaluateJavascript(
             "if(typeof window._resume !== 'undefined') window._resume();", null
         );
@@ -95,10 +90,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    /**
-     * JavaScript interface for Android-to-JS communication.
-     * Not strictly needed but available for future features like vibration, etc.
-     */
     public class WebAppInterface {
         @JavascriptInterface
         public void showToast(String message) {
@@ -109,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
         @JavascriptInterface
         public void vibrate(long duration) {
-            android.os.Vibrator vibrator = (android.os.Vibrator) getSystemService(VIBRATOR_SERVICE);
+            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
             if (vibrator != null && vibrator.hasVibrator()) {
                 vibrator.vibrate(duration);
             }
