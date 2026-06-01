@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>领养小奶狗</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,PingFang SC,Helvetica Neue,sans-serif;background:#fce4ec;color:#4a2c2c;min-height:100vh;padding-bottom:70px}
+.stats{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;background:#fff;justify-content:center;border-bottom:1px solid #f0d0d8;position:sticky;top:0;z-index:10}
+.stats>div{background:#fce4ec;border-radius:20px;padding:3px 12px;font-size:12px}
+.stats .v{color:#c2185b;font-weight:700;font-size:14px}
+.card{background:#fff;border-radius:14px;padding:14px;margin:10px 14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.ttl{font-size:15px;font-weight:700;color:#c2185b;margin-bottom:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:9px 16px;border:0;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;transition:.12s;position:relative}
+.btn:active{transform:scale(.94)}
+.btn.pk{background:linear-gradient(135deg,#f48fb1,#ec407a);color:#fff}
+.btn.pk:disabled{background:#ccc;color:#999;cursor:default;transform:none}
+.btn.gy{background:#fce4ec;color:#c2185b;border:1px solid #f48fb1}
+.btn.gy:disabled{background:#f0f0f0;color:#bbb;border-color:#ddd;cursor:default}
+.btn.gd{background:linear-gradient(135deg,#ffd54f,#ffb300);color:#5d4037}
+.btn.dm{background:linear-gradient(135deg,#80deea,#26c6da);color:#00695c}
+.sm{padding:5px 12px;font-size:11px;border-radius:7px}
+.arow{display:flex;gap:8px;margin-bottom:8px}
+.arow .btn{flex:1;font-size:12px}
+.pbar{height:6px;background:#f0e0e4;border-radius:3px;overflow:hidden;margin:4px 0}
+.pbar .f{height:100%;background:linear-gradient(90deg,#f48fb1,#ec407a);border-radius:3px;transition:width .3s}
+.si{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f5e6ea}
+.si:last-child{border-bottom:0}
+.si-i{flex:1}
+.si-n{font-size:13px;font-weight:700}
+.si-d{font-size:11px;color:#8d6e6e;margin-top:2px}
+.si-c{font-size:11px;color:#c2185b;margin-top:2px}
+.er{display:flex;justify-content:space-between;align-items:center;padding:7px 0}
+.er-n{font-size:13px;font-weight:700}
+.er-c{font-size:12px;color:#8d6e6e;margin:2px 0}
+.er-d{font-size:10px;color:#aaa}
+.tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:20;background:#fff;border-top:2px solid #f48fb1}
+.tb{flex:1;padding:8px 2px;border:0;background:transparent;color:#8d6e6e;font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px}
+.tb .i{font-size:20px}
+.tb.on{color:#c2185b;background:#fce4ec;font-weight:700}
+.tc{display:none}
+.tc.on{display:block}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:18px;padding:22px;max-width:340px;width:100%;text-align:center}
+.modal h2{color:#c2185b;font-size:17px;margin-bottom:8px}
+.modal p{font-size:13px;color:#4a2c2c;margin-bottom:14px;line-height:1.5}
+.modal .btn{margin:3px}
+.cdbar{height:3px;background:#f0e0e4;border-radius:2px;overflow:hidden;margin:3px 0}
+.cdbar .f{height:100%;background:#90caf9;border-radius:2px;transition:width 1s linear}
+.buff-row{display:flex;flex-wrap:wrap;gap:4px}
+.buff{background:#e8f5e9;color:#2e7d32;font-size:10px;padding:2px 6px;border-radius:4px}
+.debg{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);overflow-y:auto;padding:16px}
+.debg-in{background:#fff;border-radius:14px;padding:14px;max-width:500px;margin:0 auto}
+.debg h2{color:#c2185b;margin-bottom:10px;font-size:16px}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.dg>div{display:flex;flex-direction:column;gap:2px}
+.dg label{font-size:10px;color:#666}
+.dg input{font-size:11px;padding:3px 5px;border:1px solid #ddd;border-radius:5px}
+.dg input[type=checkbox]{width:18px;height:18px}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:150;background:rgba(0,0,0,.85);color:#fff;padding:14px 22px;border-radius:11px;font-size:15px;font-weight:700;pointer-events:none}
+.hide{display:none!important}
+.fin{position:fixed;inset:0;z-index:300;background:linear-gradient(135deg,#f8bbd0,#c2185b);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;color:#fff;text-align:center}
+.fin h1{font-size:28px;margin-bottom:10px}
+.fin p{font-size:15px;margin-bottom:6px;opacity:.9}
+.fin .bi{font-size:70px;margin-bottom:16px}
+.warn{font-size:11px;color:#8d6e6e;padding:6px;background:#f0e0e4;border-radius:7px;margin:6px 0;text-align:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+'use strict';
+let G={
+  prestige:0,diamond:10,dogs:0,dogMax:5,startTime:null,finishTime:null,
+  finished:false,totalPrestige:0,rescueLv:1,promoteLv:1,prestigeLv:1,
+  lovers:0,volunteers:0,keepers:0,loverSec:0,volunSec:0,
+  luckyBracelet:false,specialFood:false,badge:false,diamondProb:false,
+  diaryFreeUsed:false,lastBadgeThousand:0,
+  eMeet:false,eVisit:false,eClinic:false,eTalk:false,eChoice:false,
+  eSurprise:false,eSoul:false,eLife:false,
+  xiaoziActive:false,communityActive:false,fulltimeActive:false,
+  firmHeart:false,firmHeartSec:0,
+  goldSec:0,foodSec:0,warmSec:0,soulSec:0,chatRedSec:0,
+  lotteryFree:false,lotteryWinRate:15,
+  chatCd:0,goldCd:0,lotteryCd:0,
+  rescClk:0,proClk:0,xzTimer:0
+};
+let shopUnlock=false,eventLock=false,timerId=0,toastTimer=0;
+const BC=[0,15,12,9,6,3,1];
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const effLv=n=>G.goldSec>0?6:n;
+const gRclk=()=>{let l=G.rescueLv;if(G.foodSec>0)l=Math.min(6,l+2);let n=BC[l];if(G.chatRedSec>0)n=Math.max(1,n-1);return n};
+const gPclk=()=>{let l=G.promoteLv;if(G.foodSec>0)l=Math.min(6,l+2);let n=BC[l];if(G.chatRedSec>0)n=Math.max(1,n-1);return n};
+const gIv=()=>{let i=12;if(G.fulltimeActive)i=10;if(G.firmHeartSec>0)i=6;return i};
+const gMult=x=>{if(x>=12)return 28;if(x>=8)return 4;if(x>=4)return 2;return 1};
+const fmt=t=>{let h=Math.floor(t/3600);let m=Math.floor((t%3600)/60);let s=t%60;return h>0?h+'时'+m+'分'+s+'秒':m>0?m+'分'+s+'秒':s+'秒'};
+
+function calcP(){
+  let l=effLv(G.prestigeLv),b=0;
+  if(l===1)b=rnd(10,20);else if(l===2)b=rnd(20,30);else if(l===3)b=rnd(30,50);else if(l===4)b=rnd(50,80);else b=rnd(80,140);
+  let a=G.communityActive?5:0,t=b+a;
+  if(G.soulSec>0)t*=2;
+  G.prestige+=t;G.totalPrestige+=t;
+  if(G.badge){let c=Math.floor(G.totalPrestige/1000);if(c>G.lastBadgeThousand){G.prestige+=50;G.lastBadgeThousand=c}}
+  return t;
+}
+
+// Toast
+function tt(m){
+  let e=document.getElementById('_tt');
+  if(!e){e=document.createElement('div');e.id='_tt';e.className='toast';document.body.appendChild(e)}
+  e.textContent=m;e.style.display='block';
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>{e.style.display='none'},2000);
+}
+
+// Modal
+function modal(title,msg,btns){
+  let el=document.createElement('div');el.id='_modal';
+  let b=btns.map((x,i)=>'<button class="btn pk sm" onclick="window._mcb('+i+')"'+(!x[1]?'':' disabled')+'>'+x[0]+'</button>').join('');
+  el.innerHTML='<div class="ov"><div class="modal"><h2>'+title+'</h2><p>'+msg.replace(/\n/g,'<br>')+'</p>'+b+'</div></div>';
+  document.body.appendChild(el);
+  window._mcb=i=>{if(btns[i]&&btns[i][2])btns[i][2]();el.remove();window._mcb=null};
+}
+function closeModal(){
+  let e=document.getElementById('_modal');if(e)e.remove();
+  e=document.getElementById('_pw');if(e)e.remove();
+  window._mcb=null;
+}
+
+// Events
+function evMeet(){
+  eventLock=true;G.eMeet=true;G.prestige+=50;G.diamond+=1;G.xiaoziActive=true;
+  modal('🌸 初遇','声望+50，钻石+1\n小紫关怀已激活！商店新增「小紫的幸运手链」',[['好，一起努力！',0,()=>{eventLock=false;render()}]])
+}
+function evVisit(){
+  eventLock=true;G.eVisit=true;G.dogs=Math.max(G.dogs,G.dogs+1);G.warmSec=60;
+  modal('🏠 温暖的探访','流浪狗+1（无视上限）\n温暖效果持续60秒\n商店新增「小紫的特制狗粮」',[['真温暖！',0,()=>{eventLock=false;render()}]])
+}
+function evClinic(){
+  eventLock=true;G.eClinic=true;G.prestige+=300;G.communityActive=true;
+  modal('💉 宠物义诊','声望+300\n社区声望已激活（每次宣传额外+5声望）',[['太棒了！',0,()=>{eventLock=false;render()}]])
+}
+function evTalk(){
+  eventLock=true;G.eTalk=true;G.lotteryFree=true;
+  modal('🌙 深夜长谈','彩票免费概率已激活！（30%免费机会）\n界面新增「小紫的日记」赠礼按钮',[['倾听她的故事',0,()=>{eventLock=false;render()}]])
+}
+function evChoice(){
+  eventLock=true;G.eChoice=true;
+  modal('💝 小紫的抉择','小紫收到了重要的机会——去大城市深造动物医学。\n你支持她吗？',
+    [['全力支持她（消耗3💎）',G.diamond<3,()=>{if(G.diamond>=3){G.diamond-=3;G.fulltimeActive=true;eventLock=false;tt('💝 小紫全职协助已激活！');render()}}],
+     ['希望她慎重考虑（+500声望+1💎）',0,()=>{G.prestige+=500;G.diamond+=1;G.firmHeart=true;G.firmHeartSec=120;eventLock=false;tt('💝 坚定的心激活120秒！');render()}]])
+}
+function evSurprise(){
+  eventLock=true;G.eSurprise=true;let b=Math.max(1,G.dogs);
+  G.dogs+=2;if(G.dogs>G.dogMax)G.dogs=G.dogMax;G.prestige+=b*20;
+  modal('🎉 意外的惊喜','声望+'+b*20+'（按当前流浪狗数量）\n流浪狗+2\n商店新增「小紫的纪念徽章」',[['太开心了！',0,()=>{eventLock=false;render()}]])
+}
+function evSoul(){
+  eventLock=true;G.eSoul=true;G.prestige+=2000;G.diamond+=3;
+  modal('💫 心灵相通','声望+2000，钻石+3\n获得「小紫的祝福」按钮',[['💕 我也是',0,()=>{eventLock=false;render()}]])
+}
+function evLife(){
+  G.eLife=true;G.finished=true;G.finishTime=Math.floor((Date.now()-G.startTime)/1000);render();
+}
+
+function checkEv(){
+  if(G.finished||eventLock)return;
+  if(!G.eMeet&&G.prestige>=200){evMeet();return}
+  if(!G.eVisit&&G.prestige>=800){evVisit();return}
+  if(!G.eClinic&&G.prestige>=2000){evClinic();return}
+  if(!G.eTalk&&G.prestige>=8000){evTalk();return}
+  if(!G.eChoice&&G.prestige>=15000){evChoice();return}
+  if(!G.eSurprise&&G.prestige>=25000){evSurprise();return}
+  if(!G.eSoul&&G.prestige>=40000){evSoul();return}
+  if(!G.eLife&&G.prestige>=50000){evLife();return}
+}
+
+// Actions
+function doRescue(){
+  if(G.finished||eventLock)return;
+  if(!G.startTime)G.startTime=Date.now();
+  G.rescClk++;let n=gRclk();
+  if(G.rescClk>=n){if(G.dogs<G.dogMax)G.dogs++;G.rescClk=0}
+  checkEv();render();
+}
+function doPromote(){
+  if(G.finished||eventLock||G.dogs<=0)return;
+  if(!G.startTime)G.startTime=Date.now();
+  G.proClk++;let n=gPclk();
+  if(G.proClk>=n){
+    if(!(G.warmSec>0&&rnd(1,100)<=20))G.dogs--;
+    calcP();G.proClk=0
+  }
+  checkEv();render();
+}
+function doChat(){
+  if(G.chatCd>0||!G.xiaoziActive)return;
+  G.chatCd=60;let p=rnd(1,100);
+  if(p<=80){let g=rnd(5,15);G.prestige+=g;tt('💬 聊得很开心 +'+g+'声望')}
+  else if(p<=95){let g=rnd(20,30);G.prestige+=g;G.chatRedSec=30;tt('💬 小紫很开心！+'+g+'声望，减点击30秒')}
+  else{if(G.dogs>0){let g=calcP();tt('💬 小紫超开心！获得'+g+'声望')}else tt('💬 小紫笑了笑')}
+  render();
+}
+function hire(t){
+  let m=gMult(G[t]),c={lover:50,volunteer:70,keeper:100}[t];
+  if(G.prestige<c*m)return;
+  G.prestige-=c*m;
+  if(t==='lover'){G.lovers++;tt('❤️ 爱护者 +1')}
+  else if(t==='volunteer'){G.volunteers++;tt('📣 志愿者 +1')}
+  else{G.keepers++;G.dogMax+=3;tt('🏠 看守者 +1，上限+3')}
+  render();
+}
+function dHire(){
+  if(G.diamond<1)return;G.diamond--;
+  closeModal();
+  modal('💎 钻石招募','选择要招募的员工：',
+    [['❤️ 爱护者',0,()=>{G.lovers++;tt('招募成功！');render()}],
+     ['📣 志愿者',0,()=>{G.volunteers++;tt('招募成功！');render()}],
+     ['🏠 看守者',0,()=>{G.keepers++;G.dogMax+=3;tt('招募成功！');render()}]])
+}
+function dEx(){
+  if(G.diamond<1)return;G.diamond--;G.prestige+=500;tt('💎 +500声望');render()
+}
+function dProb(){
+  if(G.diamond<3||G.diamondProb)return;
+  G.diamond-=3;G.diamondProb=true;G.lotteryWinRate+=10;tt('💎 大奖概率提升至'+G.lotteryWinRate+'%');render()
+}
+function buy(k){
+  if(k==='lucky'){if(G.luckyBracelet||G.prestige<200)return;G.prestige-=200;G.luckyBracelet=true;G.lotteryWinRate+=20;tt('🌸 幸运手链 +20%大奖概率');render()}
+  else if(k==='food'){if(G.specialFood||G.prestige<50)return;G.prestige-=50;G.specialFood=true;G.foodSec=15;tt('🍖 特制狗粮15秒！');render()}
+  else if(k==='badge'){if(G.badge||G.prestige<300)return;G.prestige-=300;G.badge=true;G.lastBadgeThousand=Math.floor(G.totalPrestige/1000);tt('🏅 纪念徽章已购买！');render()}
+}
+function upg(k){
+  let rc=[0,50,150,400,1000,2000],pc=[0,100,200,500,1500];
+  if(k==='rescue'){if(G.rescueLv>=6||G.prestige<rc[G.rescueLv])return;G.prestige-=rc[G.rescueLv];G.rescueLv++;tt('🐾 救助 Lv.'+G.rescueLv)}
+  else if(k==='promote'){if(G.promoteLv>=6||G.prestige<rc[G.promoteLv])return;G.prestige-=rc[G.promoteLv];G.promoteLv++;tt('📢 宣传 Lv.'+G.promoteLv)}
+  else{if(G.prestigeLv>=5||G.prestige<pc[G.prestigeLv])return;G.prestige-=pc[G.prestigeLv];G.prestigeLv++;tt('⭐ 声望 Lv.'+G.prestigeLv)}
+  render();
+}
+function useGold(){
+  if(G.prestige<300||G.goldCd>0)return;G.prestige-=300;G.goldCd=60;G.goldSec=5;tt('✨ 黄金体验5秒！');render()
+}
+function useLottery(){
+  let fr=false;
+  if(G.lotteryFree&&rnd(1,100)<=30)fr=true;
+  if(!fr){if(G.prestige<100||G.lotteryCd>0)return;G.prestige-=100;G.lotteryCd=60}
+  let g=rnd(1,100)<=G.lotteryWinRate?rnd(100,1000):rnd(10,100);
+  G.prestige+=g;G.totalPrestige+=g;
+  tt('🎰 '+(rnd(1,100)<=G.lotteryWinRate?'中大奖！+'+g:'中了'+g)+'声望');render()
+}
+function claimDiary(){
+  if(G.diaryFreeUsed)return;G.prestige+=500;G.diaryFreeUsed=true;tt('📕 +500声望');render()
+}
+function claimBless(){
+  if(G.soulSec>0)return;G.soulSec=30;tt('💫 祝福30秒！');render()
+}
+
+// Render functions
+function renderHome(){
+  let e=document.getElementById('app');
+  e.innerHTML='<div class="card" style="text-align:center;padding:60px 20px;margin:60px 20px"><div style="font-size:60px;margin-bottom:16px">🐾</div><h2 style="color:#c2185b;font-size:22px;margin-bottom:10px">领养小奶狗</h2><p style="color:#8d6e6e;font-size:14px;margin-bottom:24px;line-height:1.6">帮助流浪狗找到温暖的家<br>招募员工 · 经营救助站 · 与小紫一起努力</p><button class="btn pk" onclick="window._start()" style="font-size:16px;padding:12px 40px">🐶 开始救助</button></div>';
+}
+function render(){
+  if(G.finished){renderFin();return}
+  if(!G.startTime&&!eventLock){renderHome();return}
+  renderGame();
+}
+function renderGame(){
+  let le=eventLock?'style="pointer-events:none;opacity:.6"':'';
+  let rn=gRclk(),pn=gPclk();
+  let h='<div class="stats"><div>⭐声望 <span class="v" id="s_prestige">'+G.prestige+'</span></div><div>💎钻石 <span class="v" id="s_diamond">'+G.diamond+'</span></div><div>🐕狗 <span class="v" id="s_dogs">'+G.dogs+'/'+G.dogMax+'</span></div><div>⏱️ <span class="v" id="s_time">'+fmt(G.startTime?Math.floor((Date.now()-G.startTime)/1000):0)+'</span></div></div>';
+
+  // Buffs
+  let bs=[];
+  if(G.goldSec>0)bs.push('✨黄金体验 '+G.goldSec+'s');
+  if(G.foodSec>0)bs.push('🍖特制狗粮 '+G.foodSec+'s');
+  if(G.warmSec>0)bs.push('🏡温暖 '+G.warmSec+'s');
+  if(G.firmHeartSec>0)bs.push('💪坚定的心 '+G.firmHeartSec+'s');
+  if(G.soulSec>0)bs.push('💫祝福 '+G.soulSec+'s');
+  if(G.chatRedSec>0)bs.push('💬减点击 '+G.chatRedSec+'s');
+  if(bs.length)h+='<div class="card" style="padding:8px 12px"><div class="buff-row">'+bs.map(b=>'<span class="buff">'+b+'</span>').join('')+'</div></div>';
+
+  // Main actions
+  h+='<div class="card" '+le+'><div class="arow"><button class="btn pk" onclick="window._r()"><span style="font-size:18px">🐾</span> 救助 ('+G.rescClk+'/'+rn+')</button><button class="btn pk" onclick="window._p()" '+(G.dogs<=0?'disabled':'')+'><span style="font-size:18px">📢</span> 宣传 ('+G.proClk+'/'+pn+')</button></div><div class="pbar"><div class="f" style="width:'+Math.min(100,G.rescClk/rn*100)+'%"></div></div><div class="pbar"><div class="f" style="width:'+Math.min(100,G.proClk/pn*100)+'%"></div></div></div>';
+
+  // Employees
+  h+='<div class="card" '+le+'><div class="ttl">👥 员工 <span style="font-size:10px;background:#f48fb1;color:#fff;padding:1px 7px;border-radius:8px">自动工作</span></div><div class="er"><div><div class="er-n">❤️ 狗狗爱护者</div><div class="er-c">'+G.lovers+' 名</div><div class="er-d">每'+gIv()+'秒自动救助</div></div></div><div class="er"><div><div class="er-n">📣 志愿者</div><div class="er-c">'+G.volunteers+' 名</div><div class="er-d">每'+gIv()+'秒自动宣传</div></div></div><div class="er"><div><div class="er-n">🏠 狗狗看守者</div><div class="er-c">'+G.keepers+' 名</div><div class="er-d">上限+'+G.keepers*3+'</div></div></div></div>';
+
+  // Xiaozi chat
+  if(G.xiaoziActive){
+    let cl=G.chatCd>0?'冷却 '+G.chatCd+'s':'💬 聊天';
+    h+='<div class="card" '+le+'><div class="ttl">💗 小紫</div><button class="btn gy sm" onclick="window._chat()" '+(G.chatCd>0?'disabled':'')+'>'+cl+'</button>'+(G.chatCd>0?'<div class="cdbar"><div class="f" style="width:'+G.chatCd/60*100+'%"></div></div>':'')+'</div>';
+  }
+  if(G.eTalk&&!G.diaryFreeUsed)h+='<div class="card" '+le+'><div class="ttl">📖 小紫的日记</div><button class="btn gd sm" onclick="window._cd()">📕 小紫赠礼（+500声望）</button></div>';
+  if(G.eSoul&&!G.soulSec)h+='<div class="card" '+le+'><div class="ttl">💫 心灵相通</div><button class="btn pk sm" onclick="window._cb()">🌟 小紫的祝福（30秒双倍）</button></div>';
+
+  // Tabs
+  h+='<div style="height:8px"></div><div class="tabbar"><button class="tb on" data-t="m" onclick="window._sw(this,\'m\')"><span class="i">🏠</span>救助</button><button class="tb" data-t="s" onclick="window._sw(this,\'s\')"><span class="i">🏪</span>商店</button><button class="tb" data-t="u" onclick="window._sw(this,\'u\')"><span class="i">⬆️</span>深造</button><button class="tb" data-t="i" onclick="window._sw(this,\'i\')"><span class="i">🎁</span>道具</button><button class="tb" data-t="q" onclick="window._sw(this,\'q\')"><span class="i">📋</span>剧情</button></div>';
+  h+='<div class="tc on" id="tm">'+tabM()+'</div><div class="tc" id="ts">'+tabS()+'</div><div class="tc" id="tu">'+tabU()+'</div><div class="tc" id="ti">'+tabI()+'</div><div class="tc" id="tq">'+tabQ()+'</div>';
+
+  h+='<div style="position:fixed;bottom:55px;right:6px;z-index:30"><button class="btn gy sm" onclick="window._db()" style="font-size:9px;padding:3px 8px;opacity:.5">🔧</button></div>';
+  document.getElementById('app').innerHTML=h;
+  if(!shopUnlock&&G.prestige>=50&&!G.finished){shopUnlock=true;tt('🏪 商店已解锁！')}
+}
+
+function tabM(){
+  return '<div class="card"><div class="ttl">🐕 救助站</div><p style="font-size:13px;color:#8d6e6e;margin-bottom:8px">流浪狗 '+G.dogs+'/'+G.dogMax+' 只</p>'+(G.dogs>=G.dogMax?'<div class="warn">⚠️ 流浪狗已满，请宣传或招募看守者</div>':'')+'<div style="font-size:11px;color:#999;margin-top:6px">救助效率 Lv.'+G.rescueLv+' | 宣传效率 Lv.'+G.promoteLv+' | 声望获取 Lv.'+effLv(G.prestigeLv)+'</div></div>';
+}
+
+function tabS(){
+  if(G.prestige<50&&!shopUnlock)return '<div class="card"><p style="color:#999;text-align:center">声望达到50时解锁商店</p></div>';
+  let m1=gMult(G.lovers),m2=gMult(G.volunteers),m3=gMult(G.keepers);
+  let h='<div class="card"><div class="ttl">🏪 招募员工</div>';
+  h+='<div class="si"><div class="si-i"><div class="si-n">❤️ 爱护者 ×1</div><div class="si-c">'+50*m1+' 声望</div></div><button class="btn pk sm" onclick="window._h(\'lover\')" '+(G.prestige<50*m1?'disabled':'')+'>招募</button></div>';
+  h+='<div class="si"><div class="si-i"><div class="si-n">📣 志愿者 ×1</div><div class="si-c">'+70*m2+' 声望</div></div><button class="btn pk sm" onclick="window._h(\'volunteer\')" '+(G.prestige<70*m2?'disabled':'')+'>招募</button></div>';
+  h+='<div class="si"><div class="si-i"><div class="si-n">🏠 看守者 ×1</div><div class="si-c">'+100*m3+' 声望</div></div><button class="btn pk sm" onclick="window._h(\'keeper\')" '+(G.prestige<100*m3?'disabled':'')+'>招募</button></div>';
+  if(G.diamond>0)h+='<div class="si"><div class="si-i"><div class="si-n">💎 钻石招募</div><div class="si-d">消耗1钻石</div></div><button class="btn dm sm" onclick="window._dh()">招募</button></div>';
+  h+='</div>';
+  h+='<div class="card"><div class="ttl">🎀 小紫的商店</div>';
+  if(G.eMeet&&!G.luckyBracelet)h+='<div class="si"><div class="si-i"><div class="si-n">🌸 幸运手链</div><div class="si-d">大奖概率+20</div><div class="si-c">200 声望</div></div><button class="btn pk sm" onclick="window._buy(\'lucky\')" '+(G.prestige<200?'disabled':'')+'>购买</button></div>';
+  if(G.eVisit&&!G.specialFood)h+='<div class="si"><div class="si-i"><div class="si-n">🍖 特制狗粮</div><div class="si-d">15秒降低所需点击</div><div class="si-c">50 声望</div></div><button class="btn pk sm" onclick="window._buy(\'food\')" '+(G.prestige<50?'disabled':'')+'>购买</button></div>';
+  if(G.eSurprise&&!G.badge)h+='<div class="si"><div class="si-i"><div class="si-n">🏅 纪念徽章</div><div class="si-d">每1000声望赠50</div><div class="si-c">300 声望</div></div><button class="btn pk sm" onclick="window._buy(\'badge\')" '+(G.prestige<300?'disabled':'')+'>购买</button></div>';
+  if(!G.diamondProb&&G.diamond>=3)h+='<div class="si"><div class="si-i"><div class="si-n">💎 提升概率</div><div class="si-d">3钻石，大奖+10</div></div><button class="btn dm sm" onclick="window._dp()">购买</button></div>';
+  h+='<div class="si"><div class="si-i"><div class="si-n">💎 钻石兑换</div><div class="si-d">1钻石→500声望</div></div><button class="btn dm sm" onclick="window._dx()" '+(G.diamond<1?'disabled':'')+'>兑换</button></div>';
+  h+='</div>';
+  return h;
+}
+
+function tabU(){
+  let rc=[0,50,150,400,1000,2000],pc=[0,100,200,500,1500];
+  let h='<div class="card"><div class="ttl">⬆️ 深造成长</div>';
+  if(G.rescueLv<6)h+='<div class="si"><div class="si-i"><div class="si-n">🐾 救助效率 Lv.'+G.rescueLv+'→'+(G.rescueLv+1)+'</div><div class="si-c">'+rc[G.rescueLv]+' 声望</div></div><button class="btn pk sm" onclick="window._up(\'rescue\')" '+(G.prestige<rc[G.rescueLv]?'disabled':'')+'>升级</button></div>';
+  else h+='<div class="si"><div class="si-i"><div class="si-n">🐾 救助效率 Lv.6 MAX</div></div></div>';
+  if(G.promoteLv<6)h+='<div class="si"><div class="si-i"><div class="si-n">📢 宣传效率 Lv.'+G.promoteLv+'→'+(G.promoteLv+1)+'</div><div class="si-c">'+rc[G.promoteLv]+' 声望</div></div><button class="btn pk sm" onclick="window._up(\'promote\')" '+(G.prestige<rc[G.promoteLv]?'disabled':'')+'>升级</button></div>';
+  else h+='<div class="si"><div class="si-i"><div class="si-n">📢 宣传效率 Lv.6 MAX</div></div></div>';
+  if(G.prestigeLv<5)h+='<div class="si"><div class="si-i"><div class="si-n">⭐ 声望获取 Lv.'+G.prestigeLv+'→'+(G.prestigeLv+1)+'</div><div class="si-c">'+pc[G.prestigeLv]+' 声望</div></div><button class="btn pk sm" onclick="window._up(\'prestige\')" '+(G.prestige<pc[G.prestigeLv]?'disabled':'')+'>升级</button></div>';
+  else h+='<div class="si"><div class="si-i"><div class="si-n">⭐ 声望获取 Lv.5 MAX</div></div></div>';
+  h+='</div>';return h;
+}
+
+function tabI(){
+  let h='<div class="card"><div class="ttl">🎁 强力道具</div>';
+  h+='<div class="si"><div class="si-i"><div class="si-n">✨ 黄金体验</div><div class="si-d">300声望，5秒全满级，冷却60秒</div></div><button class="btn gd sm" onclick="window._go()" '+(G.prestige<300||G.goldCd>0?'disabled':'')+'>'+(G.goldCd>0?'冷却'+G.goldCd+'s':'使用')+'</button></div>'+(G.goldCd>0?'<div class="cdbar"><div class="f" style="width:'+G.goldCd/60*100+'%"></div></div>':'');
+  h+='<div class="si"><div class="si-i"><div class="si-n">🎰 彩票</div><div class="si-d">100声望，大奖概率'+G.lotteryWinRate+'%</div></div><button class="btn gd sm" onclick="window._lo()" '+(G.prestige<100&&!G.lotteryFree?'disabled':'')+'>'+(G.lotteryCd>0?'冷却'+G.lotteryCd+'s':'抽奖')+'</button></div>'+(G.lotteryCd>0?'<div class="cdbar"><div class="f" style="width:'+G.lotteryCd/60*100+'%"></div></div>':'');
+  h+='</div>';return h;
+}
+
+function tabQ(){
+  let qs=[['初遇',200,'eMeet'],['温暖的探访',800,'eVisit'],['宠物义诊',2000,'eClinic'],['深夜长谈',8000,'eTalk'],['小紫的抉择',15000,'eChoice'],['意外的惊喜',25000,'eSurprise'],['心灵相通',40000,'eSoul'],['一生之约',50000,'eLife']];
+  let done=qs.filter(q=>G[q[2]]).length;
+  let h='<div class="card"><div class="ttl">📋 剧情进度 <span style="font-size:10px;background:#f48fb1;color:#fff;padding:1px 7px;border-radius:8px">'+done+'/'+qs.length+'</span></div><ul style="list-style:none;padding:0">';
+  for(let q of qs){
+    let d=G[q[2]];let icon=d?'✅':['🌸','🏡','💉','📖','💍','🎉','💫','💒'][qs.indexOf(q)];
+    h+='<li style="padding:5px 0;font-size:13px;display:flex;align-items:center;gap:7px;color:'+(d?'#c2185b;font-weight:700':'#8d6e6e')+'"><span style="font-size:15px">'+icon+'</span> '+q[0]+(d?' ✓':' <span style="font-size:11px;color:#bbb;margin-left:auto">声望≥'+q[1]+'</span>')+'</li>';
+  }
+  h+='</ul></div>';return h;
+}
+
+function renderFin(){
+  document.getElementById('app').innerHTML='<div class="fin"><div class="bi">💒🐾💕</div><h1>🎉 一生之约</h1><p>你和小紫共同走过了这段温暖的旅程</p><p>救助站的流浪狗们都找到了幸福的家</p><p style="font-size:18px;font-weight:700;margin:12px 0">用时：'+fmt(G.finishTime)+'</p><p style="font-size:13px;opacity:.8">累计声望：'+G.totalPrestige+'</p><div style="margin-top:20px"><button class="btn" style="background:#fff;color:#c2185b;padding:12px 36px;font-size:15px" onclick="location.reload()">🔄 重新开始</button></div></div>';
+}
+
+// Debug panel
+function pwPrompt(){
+  closeModal();
+  let el=document.createElement('div');el.id='_pw';
+  el.innerHTML='<div class="ov" onclick="if(event.target===this)window._cm()"><div class="modal"><h2>🔐 调试密码</h2><p>请输入密码</p><input type="password" id="pwIn" style="width:80%;padding:8px 12px;border:2px solid #f48fb1;border-radius:10px;font-size:16px;text-align:center;margin:10px 0" maxlength="10" autofocus><br><button class="btn pk" onclick="var v=document.getElementById(\'pwIn\').value;if(v==\'7813\'){window._cm();window._odp()}else{window._cm();window._tt(\'❌ 密码错误\')}" style="margin-top:6px">确认</button><button class="btn gy" onclick="window._cm()" style="margin-left:6px;margin-top:6px">取消</button></div></div>';
+  document.body.appendChild(el);
+  setTimeout(function(){var e=document.getElementById('pwIn');if(e)e.focus()},100);
+}
+function openDebugPanel(){
+  let h='<div class="debg" id="_dbg"><div class="debg-in"><h2>🔧 调试面板</h2><p style="font-size:11px;color:#999;margin-bottom:8px">修改后点击应用</p><div class="dg">';
+  let nums={prestige:G.prestige,diamond:G.diamond,dogs:G.dogs,dogMax:G.dogMax,rescueLv:G.rescueLv,promoteLv:G.promoteLv,prestigeLv:G.prestigeLv,lovers:G.lovers,volunteers:G.volunteers,keepers:G.keepers,loverSec:G.loverSec,volunSec:G.volunSec,goldSec:G.goldSec,foodSec:G.foodSec,warmSec:G.warmSec,firmHeartSec:G.firmHeartSec,soulSec:G.soulSec,chatRedSec:G.chatRedSec,chatCd:G.chatCd,goldCd:G.goldCd,lotteryCd:G.lotteryCd,rescClk:G.rescClk,proClk:G.proClk,totalPrestige:G.totalPrestige,lastBadgeThousand:G.lastBadgeThousand,lotteryWinRate:G.lotteryWinRate,xzTimer:G.xzTimer};
+  let bools={finished:G.finished,luckyBracelet:G.luckyBracelet,specialFood:G.specialFood,badge:G.badge,diamondProb:G.diamondProb,diaryFreeUsed:G.diaryFreeUsed,eMeet:G.eMeet,eVisit:G.eVisit,eClinic:G.eClinic,eTalk:G.eTalk,eChoice:G.eChoice,eSurprise:G.eSurprise,eSoul:G.eSoul,eLife:G.eLife,xiaoziActive:G.xiaoziActive,communityActive:G.communityActive,fulltimeActive:G.fulltimeActive,firmHeart:G.firmHeart,lotteryFree:G.lotteryFree};
+  for(let[k,v]of Object.entries(nums))h+='<div><label>'+k+'</label><input type="number" id="dg_'+k+'" value="'+v+'"></div>';
+  for(let[k,v]of Object.entries(bools))h+='<div><label>'+k+'</label><input type="checkbox" id="dg_'+k+'" '+(v?'checked':'')+'></div>';
+  h+='</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn pk sm" onclick="window._ap()" style="flex:1">应用</button><button class="btn gy sm" onclick="window._cdbg()" style="flex:1">关闭</button></div></div></div>';
+  let d=document.createElement('div');d.innerHTML=h;document.body.appendChild(d);
+}
+function applyDebug(){
+  let nums=['prestige','diamond','dogs','dogMax','rescueLv','promoteLv','prestigeLv','lovers','volunteers','keepers','loverSec','volunSec','goldSec','foodSec','warmSec','firmHeartSec','soulSec','chatRedSec','chatCd','goldCd','lotteryCd','rescClk','proClk','totalPrestige','lastBadgeThousand','lotteryWinRate','xzTimer'];
+  let bools=['finished','luckyBracelet','specialFood','badge','diamondProb','diaryFreeUsed','eMeet','eVisit','eClinic','eTalk','eChoice','eSurprise','eSoul','eLife','xiaoziActive','communityActive','fulltimeActive','firmHeart','lotteryFree'];
+  for(let k of nums){let e=document.getElementById('dg_'+k);if(e)G[k]=parseInt(e.value)||0}
+  for(let k of bools){let e=document.getElementById('dg_'+k);if(e)G[k]=e.checked}
+  G.dogMax=5+G.keepers*3;
+  closeDebug();tt('✅ 已应用');render();
+}
+function closeDebug(){let e=document.getElementById('_dbg');if(e)e.remove()}
+
+// Timer
+function startTimer(){
+  if(timerId)return;
+  timerId=setInterval(function(){
+    if(G.finished||!G.startTime){if(G.finished&&timerId){clearInterval(timerId);timerId=0}return}
+    G.goldSec=Math.max(0,G.goldSec-1);G.foodSec=Math.max(0,G.foodSec-1);G.warmSec=Math.max(0,G.warmSec-1);
+    G.firmHeartSec=Math.max(0,G.firmHeartSec-1);G.soulSec=Math.max(0,G.soulSec-1);G.chatRedSec=Math.max(0,G.chatRedSec-1);
+    G.chatCd=Math.max(0,G.chatCd-1);G.goldCd=Math.max(0,G.goldCd-1);G.lotteryCd=Math.max(0,G.lotteryCd-1);
+    if(G.xiaoziActive){G.xzTimer++;if(G.xzTimer>=60){G.xzTimer=0;G.prestige+=10}}
+    if(G.lovers>0){G.loverSec++;let iv=gIv();if(G.loverSec>=iv){G.loverSec=0;for(let i=0;i<G.lovers;i++){if(G.dogs<G.dogMax)G.dogs++}}}
+    if(G.volunteers>0){G.volunSec++;let iv=gIv();if(G.volunSec>=iv){G.volunSec=0;for(let i=0;i<G.volunteers;i++){if(G.dogs>0){G.dogs--;calcP()}}}}
+    checkEv();updateStats();
+  },1000);
+}
+function updateStats(){
+  let keys=['prestige','diamond','dogs','time'];
+  keys.forEach(k=>{
+    let e=document.getElementById('s_'+k);
+    if(!e)return;
+    if(k==='prestige')e.textContent=G.prestige;
+    else if(k==='diamond')e.textContent=G.diamond;
+    else if(k==='dogs')e.textContent=G.dogs+'/'+G.dogMax;
+    else if(k==='time'&&G.startTime)e.textContent=fmt(Math.floor((Date.now()-G.startTime)/1000));
+  });
+}
+
+// Export functions to window for onclick
+window._start=function(){G.startTime=Date.now();render()};
+window._r=doRescue;window._p=doPromote;window._chat=doChat;
+window._h=hire;window._dh=dHire;window._dx=dEx;window._dp=dProb;
+window._buy=buy;window._up=upg;window._go=useGold;window._lo=useLottery;
+window._cd=claimDiary;window._cb=claimBless;
+window._sw=function(btn,id){
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');document.getElementById('t'+id).classList.add('on');
+};
+window._db=pwPrompt;window._ap=applyDebug;window._cdbg=closeDebug;window._cm=closeModal;window._odp=openDebugPanel;window._tt=tt;
+
+// Init
+render();
+startTimer();
+
+})();
+</script>
+</body>
+</html>
