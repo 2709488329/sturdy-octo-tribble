@@ -32,13 +32,10 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Generate Gradle Wrapper
-        run: |
-          # Download and set up a proper Gradle wrapper
-          export GRADLE_VERSION=8.5
-          curl -sL "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -o /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d /tmp/gradle
-          /tmp/gradle/gradle-${GRADLE_VERSION}/bin/gradle wrapper --gradle-version ${GRADLE_VERSION}
-          chmod +x gradlew
+        run: gradle wrapper --gradle-version 8.5
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
 
       - name: Build with Gradle
         run: ./gradlew assembleDebug --no-daemon
