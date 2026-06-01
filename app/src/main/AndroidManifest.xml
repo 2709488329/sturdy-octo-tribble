@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.puppyadopt.webapp">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.puppyadopt.webapp"
+    tools:ignore="UnusedAttribute">
 
     <application
         android:allowBackup="true"
